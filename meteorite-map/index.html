@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>The Meteorite Discovery Gap</title>
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.min.js"></script>
+  <style>
+    body { margin: 0; }
+    #map { position: absolute; inset: 0; }
+    #map canvas.p5Canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;
+                           /* a CSS blend mode blends the whole p5 canvas with the map underneath it */
+                         }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+const myMap = new maplibregl.Map({
+  container: 'map',
+  center: [-123.25, 49.26],
+  zoom: 2.5,
+  style: 'https://tiles.openfreemap.org/styles/positron'
+});
+myMap.addControl(new maplibregl.NavigationControl());
+
+function latLngToPixel(lat, lng) { return myMap.project([lng, lat]); }
+function pixelToLatLng(x, y)     { const ll = myMap.unproject([x, y]); return { lat: ll.lat, lng: ll.lng }; }
+
+let meteorites;
+
+function preload() {
+  meteorites = loadTable('Meteorite_Landings.csv', 'csv', 'header');
+}
+
+function setup() {
+  const canvas = createCanvas(windowWidth, windowHeight);
+  canvas.parent('map');
+  myMap.on('move', () => redraw());
+  noLoop();
+}
+
+function symbolSize(massInGrams) {
+  return 2 + 38 * sqrt(massInGrams / 60000000);
+}
+
+function draw() {
+  clear();
+  // use normal blending so colors remain visible
+ 
+  blendMode(BLEND);
+  const bounds = myMap.getBounds();
+  for (let i = 0; i < meteorites.getRowCount(); i++) {
+    const lat = meteorites.getNum(i, 'reclat');
+    const lng = meteorites.getNum(i, 'reclong');
+    if (!bounds.contains([lng, lat])) continue;
+    const pos = latLngToPixel(lat, lng);
+    const mass = meteorites.getNum(i, 'mass (g)');
+    const size = symbolSize(mass);
+
+    noStroke();
+    fill(110, 55, 180, 85);
+
+    ellipse(pos.x, pos.y, size + 3, size + 3);
+  }
+
+  drawLegend();
+}
+
+function drawLegend() {
+  const x = 20, y = height - 110;
+  noStroke();
+  fill(255, 255, 255, 235);
+  rect(x - 10, y - 30, 350, 120, 6);
+  fill(40);
+  textSize(17);
+  textStyle(BOLD);
+  text("The Meteorite Discovery Gap", x, y);
+  textStyle(NORMAL);
+  textSize(12);
+  text("Recorded meteorite locations", x, y + 25); 
+  fill(110, 55, 180, 130);
+  noStroke();
+  ellipse(x + 10, y + 49, 16, 16);
+  fill(40);
+  text("Meteorite discovery", x + 28, y + 53);
+  fill(40);
+  textSize(11);
+  text("Circle size reflects mass; overlap shows clusters.", x, y + 78);
+  fill(85);
+  text("Fewer records may reflect limited searching, visibility,", x, y + 105);
+  text("or reporting, rather than fewer meteortie falls.", x, y + 121);
+}
+
+
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  redraw();
+}
+</script>
+</body>
+</html>
