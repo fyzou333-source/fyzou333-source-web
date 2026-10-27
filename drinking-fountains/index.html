@@ -68,20 +68,47 @@
     });
 
     map.addControl(new maplibregl.NavigationControl());
-    addDetail('Location', properties.location);
-    addDetail('Reported season', properties.in_operation);
-    addDetail('Maintainer', properties.maintainer);
-    addDetail('Neighbourhood', properties.geo_local_area);
+    map.on('load', () => {
+      map.on('click', 'fountain-points', (e) => {
+        const fountain = e.features[0];
+        const properties = fountain.properties;
+        const coordinates = fountain.geometry.coordinates.slice();
 
-    new maplibregl.Popup({ maxWidth: '280px' })
-    .setLngLat(coordinates)
-    .setDOMContent(content)
-    .addTo(map);
-    });
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+        const content = document.createElement('div');
+        const heading = document.createElement('h3');
+        heading.textContent = properties.name || 'Drinking fountain';
+        content.appendChild(heading);
 
-    map.on('moseenter', 'fountain-points', () => {
-      map.getCanvas().style.cursor = '';
-    });
+        function addDetail(label, value) {
+          const paragraph = document.createElement('p');
+          paragraph.textContent =
+            label + ': ' + (value || 'Not specified');
+          content.appendChild(paragraph);
+        }
+
+        addDetail('Location', properties.location);
+        addDetail('Reported season', properties.in_operation);
+        addDetail('Maintainer', properties.maintainer);
+        addDetail('Neighbourhood', properties.geo_local_area);
+
+        new maplibregl.Popup({ maxWidth: '280px' })
+          .setLngLat(coordinates)
+          .setDOMContent(content)
+          .addTo(map);
+      });
+
+      
+      map.on('mouseenter', 'fountain-points', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+
+      
+      map.on('mouseleave', 'fountain-points', () => {
+        map.getCanvas().style.cursor = '';
+      });
     });
     
   </script>
