@@ -68,6 +68,22 @@
     });
 
     map.addControl(new maplibregl.NavigationControl());
+    addDetail('Location', properties.location);
+    addDetail('Reported season', properties.in_operation);
+    addDetail('Maintainer', properties.maintainer);
+    addDetail('Neighbourhood', properties.geo_local_area);
+
+    new maplibregl.Popup({ maxWidth: '280px' })
+    .setLngLat(coordinates)
+    .setDOMContent(content)
+    .addTo(map);
+    });
+
+    map.on('moseenter', 'fountain-points', () => {
+      map.getCanvas().style.cursor = '';
+    });
+    });
+    
   </script>
 </body>
 </html>
