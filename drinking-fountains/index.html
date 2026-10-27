@@ -8,10 +8,56 @@
   <style>
     body { margin: 0; }
     #map { position: absolute; inset: 0; }
+    /*display the title and legend on top of the map*/
+    #legend {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1;
+      background: white;
+      padding: 16px;
+      border-radius: 6px;
+      max-width: 250px;
+      font-family: Arial, sans-serif;
+      color: #24343b;
+      box-shadow: 0 2px 8px rgba(0,0,0, 0.2);
+    }
+    #legend h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+    #legend p {
+      margin: 8 px 0;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div id="legend">
+    <h1>Vancouver Drinking Fountains</h1>
+    <p>Explore fountains near parks and paths.</p>
+    <p><strong>Reported operating season</strong></p>
+    <p><span class="dot" style="background: #0077B6;"></span>Year-round</p>
+    <p><span class="dot" style="background: #D55E00;"></span>Seasonal</p>
+    <p><span class="dot" style="background: #707070;"></span>Season not specified</p>
+    <p>
+      Seasonal means "spring to fall" or "May-October."
+      These records do not show live working status.
+    </p>
+    <p>
+      Data: City of Vancouver. Locations are approximate;
+      fountain data coverage in only limited to Vancouver.
+    </p>
+  </div>
 
   <script>
     const map = new maplibregl.Map({
